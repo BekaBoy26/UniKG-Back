@@ -12,17 +12,29 @@ declare global {
   }
 }
 
-// Токен — access token из Supabase Auth, фронтенд передаёт его в заголовке Authorization
-export async function requireAuth(req: Request, _res: Response, next: NextFunction) {
-  const token = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
-  if (!token) throw new HttpError(401, "Unauthorized");
+const bearer = (req: Request) => req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
 
+// Токен — access token из Supabase Auth, фронтенд передаёт его в заголовке Authorization
+async function resolveUser(token: string): Promise<AuthUser | null> {
   const db = supabase(token);
   const { data, error } = await db.auth.getUser(token);
-  if (error || !data.user) throw new HttpError(401, "Unauthorized");
-
+  if (error || !data.user) return null;
   const { data: profile } = await db.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
-  req.user = { id: data.user.id, role: profile?.role === "admin" ? "admin" : "user", token };
+  return { id: data.user.id, role: profile?.role === "admin" ? "admin" : "user", token };
+}
+
+export async function requireAuth(req: Request, _res: Response, next: NextFunction) {
+  const token = bearer(req);
+  const user = token ? await resolveUser(token) : null;
+  if (!user) throw new HttpError(401, "Unauthorized");
+  req.user = user;
+  next();
+}
+
+// Вход не обязателен: с валидным токеном заполняет req.user, иначе запрос идёт как гостевой
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  const token = bearer(req);
+  if (token) req.user = (await resolveUser(token)) ?? undefined;
   next();
 }
 
