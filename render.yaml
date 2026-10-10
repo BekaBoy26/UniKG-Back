@@ -1,0 +1,26 @@
+# Render Blueprint: Express API (этот репозиторий). Фронтенд — отдельный репозиторий UniKG, деплоится на Vercel.
+# Секреты (sync: false) Render попросит ввести при создании сервиса.
+services:
+  - type: web
+    name: unikg-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      # Адрес фронтенда на Vercel (через запятую, если несколько), например https://unikg.vercel.app
+      - key: CORS_ORIGIN
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.6-flash
+      - key: GEMINI_FALLBACK_MODELS
+        value: gemini-3.7-flash,gemini-3.1-flash-lite
