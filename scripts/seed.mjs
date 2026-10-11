@@ -1,5 +1,6 @@
 // Генерирует SQL-сид из собранных данных: portal.json (2020.edu.gov.kg) + ручные данные из Kaktus/официальных сайтов
 import fs from "node:fs";
+import { localizePrograms } from "./program-i18n.mjs";
 
 const portal = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
 const outFile = process.argv[3];
@@ -232,7 +233,8 @@ const rows = items.map((it, index) => {
 
   const tuitionFrom = it.tuitionFrom !== undefined ? it.tuitionFrom : contract.length ? Math.min(...contract.map((r) => r.amount)) : null;
   const fields = it.fields ?? fieldOrder.filter((f) => fullTime.some((r) => fieldOf(r.code) === f));
-  const programs = it.programs ?? [...new Set(fullTime.map((r) => r.direction.replace(/​/g, "").replace(/\s*\(кабыл алуу[^)]*\)/, "").replace(/[:\s]+$/, "").replace(/\s+,/g, ",").trim()))].sort((a, b) => a.localeCompare(b, "ky")).map((d) => ({ ky: d }));
+  // Недостающие языки названий — из словаря program-i18n.json
+  const programs = localizePrograms(it.programs ?? [...new Set(fullTime.map((r) => r.direction.replace(/​/g, "").replace(/\s*\(кабыл алуу[^)]*\)/, "").replace(/[:\s]+$/, "").replace(/\s+,/g, ",").trim()))].sort((a, b) => a.localeCompare(b, "ky")).map((d) => ({ ky: d })));
 
   const forms = [...new Set(pRows.map((r) => formNames[r.form.replace(/ бакалавр$/, "")]).filter(Boolean))];
   const studyForm = forms.length ? { ru: forms.join(", ").replace(/^./, (c) => c.toUpperCase()) } : null;
