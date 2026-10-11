@@ -1,6 +1,7 @@
 // Генерирует SQL-сид из собранных данных: portal.json (2020.edu.gov.kg) + ручные данные из Kaktus/официальных сайтов
 import fs from "node:fs";
 import { deriveFields } from "./fields.mjs";
+import { localize } from "./institution-i18n.mjs";
 import { localizePrograms } from "./program-i18n.mjs";
 
 const portal = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
@@ -250,9 +251,9 @@ const rows = items.map((it, index) => {
   const sources = [...(pRows.length ? [PORTAL(it.pid)] : []), "https://2020.edu.gov.kg/universities", ...(it.sources ?? []), ...(photo ? [photo.page] : [])];
 
   return {
-    slug: it.slug, type: "university", short: it.short, name, city: it.city, ownership: it.ownership,
-    fields: deriveFields(fields, programs), image: photo?.image ?? null, description: it.description ?? null, languages: it.languages ?? null,
-    study_form: studyForm, tuition_from: tuitionFrom, programs, website: it.website, address: it.address, sources, popularity: index + 1,
+    slug: it.slug, type: "university", short: it.short, name: localize(it.slug, "name", name), city: it.city, ownership: it.ownership,
+    fields: deriveFields(fields, programs), image: photo?.image ?? null, description: localize(it.slug, "description", it.description), languages: localize(it.slug, "languages", it.languages),
+    study_form: localize(it.slug, "study_form", studyForm), tuition_from: tuitionFrom, programs, website: it.website, address: localize(it.slug, "address", it.address), sources, popularity: index + 1,
   };
 });
 

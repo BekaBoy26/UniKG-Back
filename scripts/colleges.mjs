@@ -2,6 +2,7 @@
 // Запуск: node scripts/colleges.mjs supabase/seed_colleges.sql
 import fs from "node:fs";
 import { deriveFields } from "./fields.mjs";
+import { localize } from "./institution-i18n.mjs";
 import { localizePrograms } from "./program-i18n.mjs";
 
 const outFile = process.argv[2];
@@ -196,9 +197,9 @@ const arr = (a) => `array[${a.map(q).join(", ")}]::text[]`;
 
 const rows = items.map((it, i) =>
   `  (${[
-    q(it.slug), q("college"), q(it.short), j(it.name), j(it.city), q(it.ownership), arr(deriveFields(it.fields ?? [], localizePrograms(it.programs ?? []))), q(it.image),
-    j(it.description), j(it.languages), j(it.studyForm), it.tuitionFrom ?? "null", j(localizePrograms(it.programs ?? [])), q(it.website),
-    j(it.address), arr(it.sources), i + 1,
+    q(it.slug), q("college"), q(it.short), j(localize(it.slug, "name", it.name)), j(it.city), q(it.ownership), arr(deriveFields(it.fields ?? [], localizePrograms(it.programs ?? []))), q(it.image),
+    j(localize(it.slug, "description", it.description)), j(localize(it.slug, "languages", it.languages)), j(localize(it.slug, "study_form", it.studyForm)), it.tuitionFrom ?? "null", j(localizePrograms(it.programs ?? [])), q(it.website),
+    j(localize(it.slug, "address", it.address)), arr(it.sources), i + 1,
   ].join(", ")})`,
 );
 
