@@ -14,3 +14,4 @@ adminRouter.put("/institutions/:id", admin.updateInstitution);
 adminRouter.delete("/institutions/:id", admin.deleteInstitution);
 adminRouter.get("/comments", admin.listComments);
 adminRouter.delete("/comments/:id", admin.deleteComment);
+adminRouter.get("/users", admin.listUsers);

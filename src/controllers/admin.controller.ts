@@ -129,6 +129,10 @@ export async function listComments(req: Request, res: Response) {
   res.json(await service.listComments(req.user!, limit));
 }
 
+export async function listUsers(req: Request, res: Response) {
+  res.json(await service.listUsers(req.user!));
+}
+
 export async function deleteComment(req: Request<{ id: string }>, res: Response) {
   await comments.remove(req.user!, id(req.params.id));
   res.status(204).end();

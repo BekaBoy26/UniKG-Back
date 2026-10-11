@@ -110,3 +110,10 @@ export async function listComments(user: AuthUser, limit: number) {
   if (error) throw error;
   return data;
 }
+
+// Почта и способ входа — из auth.users через SQL-функцию admin_list_users (отдаёт данные только админу)
+export async function listUsers(user: AuthUser) {
+  const { data, error } = await supabase(user.token).rpc("admin_list_users");
+  if (error) throw error;
+  return data;
+}
