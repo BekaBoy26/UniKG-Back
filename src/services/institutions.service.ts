@@ -89,3 +89,17 @@ export async function getInstitution(slug: string) {
   if (!item) throw new HttpError(404, "Institution not found");
   return item;
 }
+
+/** slug → id учебных заведений (несуществующие slug пропускаются) — для комментариев и избранного */
+export async function institutionIds(slugs: string[]) {
+  const { data, error } = await supabase().from("institutions").select("id, slug").in("slug", slugs);
+  if (error) throw error;
+  return data as { id: string; slug: string }[];
+}
+
+/** id учебного заведения по slug; нет такого — 404 */
+export async function institutionId(slug: string) {
+  const [found] = await institutionIds([slug]);
+  if (!found) throw new HttpError(404, "Institution not found");
+  return found.id;
+}

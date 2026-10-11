@@ -45,7 +45,8 @@ const fail = (error: { code?: string }) => {
 };
 
 const count = async (user: AuthUser, table: string, filter?: [string, string]) => {
-  let query = supabase(user.token).from(table).select("*", { count: "exact", head: true });
+  // Только id: часть колонок (например, profiles.role) закрыта от API
+  let query = supabase(user.token).from(table).select("id", { count: "exact", head: true });
   if (filter) query = query.eq(...filter);
   const { count, error } = await query;
   if (error) throw error;

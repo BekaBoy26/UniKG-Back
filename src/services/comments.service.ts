@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase.js";
 import { HttpError } from "../lib/http-error.js";
+import { institutionId } from "./institutions.service.js";
 import type { AuthUser } from "../middleware/auth.js";
 
 type Row = { id: string; user_id: string; body: string; created_at: string; author: { display_name: string | null } | null };
@@ -11,13 +12,6 @@ const toComment = ({ user_id, ...rest }: Row, user?: AuthUser) => ({
   ...rest,
   canDelete: Boolean(user && (user.role === "admin" || user.id === user_id)),
 });
-
-async function institutionId(slug: string) {
-  const { data, error } = await supabase().from("institutions").select("id").eq("slug", slug).maybeSingle();
-  if (error) throw error;
-  if (!data) throw new HttpError(404, "Institution not found");
-  return data.id as string;
-}
 
 // Комментарии публикуются сразу (status по умолчанию — approved), поэтому показываем только опубликованные.
 // Старые сверху, новые снизу — как в переписке
@@ -40,6 +34,8 @@ export async function create(user: AuthUser, slug: string, body: string) {
     .insert({ institution_id: id, user_id: user.id, body })
     .select(columns)
     .single();
+  // Лимит частоты дублируется триггером в БД (comments_rate_limit) — его срабатывание тоже 429
+  if (error?.message.includes("comment rate limit")) throw new HttpError(429, "Too many requests");
   if (error) throw error;
   return toComment(data as unknown as Row, user);
 }

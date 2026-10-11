@@ -19,8 +19,9 @@ async function resolveUser(token: string): Promise<AuthUser | null> {
   const db = supabase(token);
   const { data, error } = await db.auth.getUser(token);
   if (error || !data.user) return null;
-  const { data: profile } = await db.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
-  return { id: data.user.id, role: profile?.role === "admin" ? "admin" : "user", token };
+  // Колонка role закрыта от API (миграция 0012) — свою роль отдаёт функция my_role()
+  const { data: role } = await db.rpc("my_role");
+  return { id: data.user.id, role: role === "admin" ? "admin" : "user", token };
 }
 
 export async function requireAuth(req: Request, _res: Response, next: NextFunction) {

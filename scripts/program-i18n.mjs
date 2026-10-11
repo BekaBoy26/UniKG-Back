@@ -1,6 +1,6 @@
 // Переводы названий программ (program-i18n.json): ключ — исходное название (ru, иначе ky, иначе en), значение — недостающие языки.
 // localizePrograms — для seed.mjs/colleges.mjs; запуск напрямую печатает SQL, который дополняет переводы в уже залитой БД:
-//   node scripts/program-i18n.mjs > supabase/program_translations.sql
+//   node scripts/program-i18n.mjs   (вывод — SQL, применить в SQL Editor)
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 

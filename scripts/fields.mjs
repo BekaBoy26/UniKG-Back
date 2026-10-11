@@ -1,7 +1,7 @@
 // Направления (fields) по названиям программ. Шесть исходных (it … pedagogy) проставлены по кодам специальностей госпортала,
 // остальные выводятся из русских названий программ — только если такая программа реально есть в учебном заведении.
 // deriveFields — для seed.mjs/colleges.mjs; запуск напрямую печатает SQL для уже залитой БД:
-//   node scripts/fields.mjs > supabase/institution_fields.sql
+//   node scripts/fields.mjs   (вывод — SQL, применить в SQL Editor)
 import { fileURLToPath } from "node:url";
 
 /** Порядок направлений (как в фильтре каталога) */

@@ -1,7 +1,7 @@
 // Переводы полей учебных заведений (institution-i18n.json): название, описание и адрес — по slug,
 // языки и форма обучения — общие фразы по русскому значению. Заполняются только недостающие языки.
 // localize — для seed.mjs/colleges.mjs; запуск напрямую печатает SQL для уже залитой БД:
-//   node scripts/institution-i18n.mjs > supabase/institution_translations.sql
+//   node scripts/institution-i18n.mjs   (вывод — SQL, применить в SQL Editor)
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 

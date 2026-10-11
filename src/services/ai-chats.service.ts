@@ -1,13 +1,20 @@
 import { supabase } from "../lib/supabase.js";
 import { HttpError } from "../lib/http-error.js";
 
-export type ChatLink = { slug: string; short: string; name: string | null; city: string | null };
+type ChatLink = { slug: string; short: string; name: string | null; city: string | null };
 export type StoredMessage = { role: "user" | "model"; text: string; links?: ChatLink[] };
 
 const TITLE_LENGTH = 80;
 const MAX_CHATS = 50;
 
 // Все запросы — с токеном пользователя: RLS отдаёт и меняет только его чаты
+
+/** Засчитывает сообщение в дневной лимит (функция ai_take_quota в БД); false — лимит на сегодня исчерпан */
+export async function takeQuota(token: string) {
+  const { data, error } = await supabase(token).rpc("ai_take_quota");
+  if (error) throw error;
+  return data === true;
+}
 
 export async function list(token: string) {
   const { data, error } = await supabase(token)

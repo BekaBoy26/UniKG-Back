@@ -1,15 +1,8 @@
 import { supabase } from "../lib/supabase.js";
-import { HttpError } from "../lib/http-error.js";
+import { institutionId, institutionIds } from "./institutions.service.js";
 import type { AuthUser } from "../middleware/auth.js";
 
 // Все запросы — с токеном пользователя: RLS сама ограничивает список его записями
-
-/** slug → id учебных заведений (несуществующие slug просто пропускаются) */
-async function institutionIds(slugs: string[]) {
-  const { data, error } = await supabase().from("institutions").select("id, slug").in("slug", slugs);
-  if (error) throw error;
-  return data as { id: string; slug: string }[];
-}
 
 /** Slug избранных, новые сверху */
 export async function list(user: AuthUser) {
@@ -30,9 +23,7 @@ async function insert(user: AuthUser, ids: string[]) {
 }
 
 export async function add(user: AuthUser, slug: string) {
-  const [found] = await institutionIds([slug]);
-  if (!found) throw new HttpError(404, "Institution not found");
-  await insert(user, [found.id]);
+  await insert(user, [await institutionId(slug)]);
 }
 
 export async function remove(user: AuthUser, slug: string) {

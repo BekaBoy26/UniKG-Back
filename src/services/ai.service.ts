@@ -9,7 +9,7 @@ import {
   type SearchParams,
 } from "./institutions.service.js";
 
-export type Lang = "ru" | "ky" | "en";
+type Lang = "ru" | "ky" | "en";
 export type ChatMessage = { role: "user" | "model"; text: string };
 
 type Part = { text?: string; functionCall?: { name: string; args?: Record<string, unknown> }; [key: string]: unknown };
@@ -17,6 +17,7 @@ type Content = { role: "user" | "model"; parts: Part[] };
 
 const API = "https://generativelanguage.googleapis.com/v1beta/models";
 const MAX_TOOL_ROUNDS = 5;
+const REQUEST_TIMEOUT_MS = 25_000;
 
 const langNames: Record<Lang, string> = { ru: "русском", ky: "кыргызском", en: "английском" };
 
@@ -131,16 +132,24 @@ async function runTool(name: string, args: Record<string, unknown>, lang: Lang, 
 async function generate(contents: Content[], lang: Lang): Promise<Content> {
   let lastError = "";
   for (const model of env.geminiModels) {
-    const res = await fetch(`${API}/${model}:generateContent`, {
-      method: "POST",
-      headers: { "content-type": "application/json", "x-goog-api-key": env.geminiKey },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt(lang) }] },
-        contents,
-        tools,
-        generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
-      }),
-    });
+    let res: globalThis.Response;
+    try {
+      res = await fetch(`${API}/${model}:generateContent`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-goog-api-key": env.geminiKey },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt(lang) }] },
+          contents,
+          tools,
+          generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
+        }),
+        // Зависшая модель не должна держать запрос пользователя — по таймауту пробуем следующую
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+    } catch (e) {
+      lastError = `${model}: ${e instanceof Error ? e.message : String(e)}`;
+      continue;
+    }
     if (res.ok) {
       const json = (await res.json()) as { candidates?: { content?: Content }[] };
       const content = json.candidates?.[0]?.content;

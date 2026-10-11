@@ -9,7 +9,8 @@ import { requireAuth } from "../middleware/auth.js";
 export const router = Router();
 
 router.get("/health", (_req, res) => {
-  res.json({ status: "ok" });
+  // commit — версия на Render (переменную RENDER_GIT_COMMIT задаёт сам Render), по ней видно, что деплой обновился
+  res.json({ status: "ok", commit: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? null });
 });
 router.get("/me", requireAuth, me.get);
 router.use("/institutions", institutionsRouter);

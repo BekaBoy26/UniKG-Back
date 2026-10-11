@@ -1,6 +1,6 @@
 // Генерирует SQL-сид из собранных данных: portal.json (2020.edu.gov.kg) + ручные данные из Kaktus/официальных сайтов
 import fs from "node:fs";
-import { deriveFields } from "./fields.mjs";
+import { deriveFields, FIELD_ORDER } from "./fields.mjs";
 import { localize } from "./institution-i18n.mjs";
 import { localizePrograms } from "./program-i18n.mjs";
 
@@ -223,7 +223,6 @@ const fieldOf = (code) => {
   if (/^(6[2-9]|70|7[2-6])/.test(code)) return "engineering";
   return null;
 };
-const fieldOrder = ["it", "medicine", "engineering", "economics", "humanities", "pedagogy"];
 const formNames = { "Күндүзгү": "очная", "Кечки": "вечерняя", "Сырттан окуу": "заочная" };
 
 // Порядок в массиве items = порядок популярности (popularity = индекс + 1)
@@ -234,7 +233,7 @@ const rows = items.map((it, index) => {
   const contract = fullTime.filter((r) => r.pay === "Контракт" && r.amount);
 
   const tuitionFrom = it.tuitionFrom !== undefined ? it.tuitionFrom : contract.length ? Math.min(...contract.map((r) => r.amount)) : null;
-  const fields = it.fields ?? fieldOrder.filter((f) => fullTime.some((r) => fieldOf(r.code) === f));
+  const fields = it.fields ?? FIELD_ORDER.filter((f) => fullTime.some((r) => fieldOf(r.code) === f));
   // Недостающие языки названий — из словаря program-i18n.json
   const programs = localizePrograms(it.programs ?? [...new Set(fullTime.map((r) => r.direction.replace(/​/g, "").replace(/\s*\(кабыл алуу[^)]*\)/, "").replace(/[:\s]+$/, "").replace(/\s+,/g, ",").trim()))].sort((a, b) => a.localeCompare(b, "ky")).map((d) => ({ ky: d })));
 
