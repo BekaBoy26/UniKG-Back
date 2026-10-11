@@ -19,7 +19,8 @@ async function institutionId(slug: string) {
   return data.id as string;
 }
 
-// Комментарии публикуются сразу (status по умолчанию — approved), поэтому показываем только опубликованные
+// Комментарии публикуются сразу (status по умолчанию — approved), поэтому показываем только опубликованные.
+// Старые сверху, новые снизу — как в переписке
 export async function list(slug: string, user?: AuthUser) {
   const id = await institutionId(slug);
   const { data, error } = await supabase()
@@ -27,7 +28,7 @@ export async function list(slug: string, user?: AuthUser) {
     .select(columns)
     .eq("institution_id", id)
     .eq("status", "approved")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
   if (error) throw error;
   return (data as unknown as Row[]).map((row) => toComment(row, user));
 }
