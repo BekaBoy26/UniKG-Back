@@ -1,5 +1,6 @@
 // Генерирует SQL-сид из собранных данных: portal.json (2020.edu.gov.kg) + ручные данные из Kaktus/официальных сайтов
 import fs from "node:fs";
+import { deriveFields } from "./fields.mjs";
 import { localizePrograms } from "./program-i18n.mjs";
 
 const portal = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
@@ -250,7 +251,7 @@ const rows = items.map((it, index) => {
 
   return {
     slug: it.slug, type: "university", short: it.short, name, city: it.city, ownership: it.ownership,
-    fields, image: photo?.image ?? null, description: it.description ?? null, languages: it.languages ?? null,
+    fields: deriveFields(fields, programs), image: photo?.image ?? null, description: it.description ?? null, languages: it.languages ?? null,
     study_form: studyForm, tuition_from: tuitionFrom, programs, website: it.website, address: it.address, sources, popularity: index + 1,
   };
 });

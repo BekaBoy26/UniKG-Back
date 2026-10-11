@@ -1,4 +1,5 @@
 import { env } from "../config/env.js";
+import { FIELDS } from "../lib/fields.js";
 import { HttpError } from "../lib/http-error.js";
 import {
   findInstitution,
@@ -16,7 +17,6 @@ type Content = { role: "user" | "model"; parts: Part[] };
 
 const API = "https://generativelanguage.googleapis.com/v1beta/models";
 const MAX_TOOL_ROUNDS = 5;
-const FIELDS = ["it", "medicine", "engineering", "economics", "humanities", "pedagogy"];
 
 const langNames: Record<Lang, string> = { ru: "русском", ky: "кыргызском", en: "английском" };
 

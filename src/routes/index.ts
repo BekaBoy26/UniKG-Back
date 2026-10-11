@@ -2,6 +2,7 @@ import { Router } from "express";
 import { institutionsRouter } from "./institutions.routes.js";
 import { aiRouter } from "./ai.routes.js";
 import { adminRouter } from "./admin.routes.js";
+import { favoritesRouter } from "./favorites.routes.js";
 import * as me from "../controllers/me.controller.js";
 import { requireAuth } from "../middleware/auth.js";
 
@@ -14,3 +15,4 @@ router.get("/me", requireAuth, me.get);
 router.use("/institutions", institutionsRouter);
 router.use("/ai", aiRouter);
 router.use("/admin", adminRouter);
+router.use("/favorites", favoritesRouter);

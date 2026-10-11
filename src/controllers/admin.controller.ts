@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import * as service from "../services/admin.service.js";
 import * as comments from "../services/comments.service.js";
+import { FIELDS } from "../lib/fields.js";
 import { HttpError } from "../lib/http-error.js";
 import type { InstitutionType, Localized } from "../services/institutions.service.js";
 
@@ -8,7 +9,6 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SLUG = /^[a-z0-9-]{1,80}$/;
 const TYPES = ["university", "college"];
 const OWNERSHIP = ["state", "private"];
-const FIELDS = ["it", "medicine", "engineering", "economics", "humanities", "pedagogy"];
 const LANGS = ["ru", "ky", "en"] as const;
 
 const bad = (message: string): never => {

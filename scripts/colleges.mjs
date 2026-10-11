@@ -1,6 +1,7 @@
 // Генерирует SQL-сид колледжей (топ-30). Данные — из открытых источников, ссылки в sources каждой записи.
 // Запуск: node scripts/colleges.mjs supabase/seed_colleges.sql
 import fs from "node:fs";
+import { deriveFields } from "./fields.mjs";
 import { localizePrograms } from "./program-i18n.mjs";
 
 const outFile = process.argv[2];
@@ -195,7 +196,7 @@ const arr = (a) => `array[${a.map(q).join(", ")}]::text[]`;
 
 const rows = items.map((it, i) =>
   `  (${[
-    q(it.slug), q("college"), q(it.short), j(it.name), j(it.city), q(it.ownership), arr(it.fields ?? []), q(it.image),
+    q(it.slug), q("college"), q(it.short), j(it.name), j(it.city), q(it.ownership), arr(deriveFields(it.fields ?? [], localizePrograms(it.programs ?? []))), q(it.image),
     j(it.description), j(it.languages), j(it.studyForm), it.tuitionFrom ?? "null", j(localizePrograms(it.programs ?? [])), q(it.website),
     j(it.address), arr(it.sources), i + 1,
   ].join(", ")})`,
